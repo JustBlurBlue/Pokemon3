@@ -41,6 +41,8 @@ class Player:
         self.index -= 1
     #选择宝可梦
     def choose_pokemon(self) :
+        for i in pokemon_dict:
+            print(f"{i}.{pokemon_dict[i].__name__}")
         if self.operater != "PC":
             choose = input_check(f"P{self.Num}({self.operater})请选择3个宝可梦用于组成你的队伍:")
         else:
