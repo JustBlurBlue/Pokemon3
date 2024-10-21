@@ -1,9 +1,9 @@
 from __future__ import annotations
-from pokemon import Pokemon, Bulbasaur, Pikachu, Charmander, Squirtle
+from pokemon import Pokemon, Bulbasaur, Pikachu, Charmander, Squirtle, Farfetchd
 from Ways import *
 import random
 ###宝可梦词典
-pokemon_dict = {"1": Bulbasaur,"2":Pikachu,"3":Charmander,"4":Squirtle}
+pokemon_dict = {"1": Bulbasaur,"2":Pikachu,"3":Charmander,"4":Squirtle,"5":Farfetchd}
 ##定义玩家类
 class Player:
     def __init__(self, operater: str, num: int, pokemonlist: list[Pokemon]):
@@ -109,7 +109,10 @@ class Play:
     def print_players(self,index):
         for i in self.playerlist:
             if i.index != index:
-                print(f"{i.index+1}.{i},当前宝可梦：{i.pokemonlist_live[i.current_pokemon]}")
+                try:
+                    print(f"{i.index+1}.{i},当前宝可梦：{i.pokemonlist_live[i.current_pokemon]}")
+                except:
+                    pass
 
     #初始选择宝可梦
     def init_select_pokemon(self):
@@ -129,14 +132,14 @@ class Play:
             player.set_dead()
             self.check_game()
             for i in self.playerlist:
-                if i.index > player.index:
+                if i.index >= player.index:
                     i.change_index()
             return False
         return True
     #检查宝可梦是否阵亡，如果阵亡，则从live列表中删除，并加入dead列表  ,然后检查玩家宝可梦列表是否为空
     def check_pokemon_alive(self, player, pokemon):
         if pokemon.hp <= 0:
-            print(f"{pokemon}陷入昏厥")
+            print(f"{pokemon} 陷入昏厥")
             player.change_pokemon_list(pokemon)
             if  len(player.pokemonlist_live) != 0:
                 self.dead_select_pokemon(player)
@@ -178,17 +181,25 @@ class Play:
     def round_s_effect(self):
         print("被动结算")
         for i in range(len(self.playerlist)):
+
             self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].begin()
             self.check_pokemon_alive(self.playerlist[i], self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon])
+
+
             if not self.check_player(self.playerlist[i]):
                 return False
             print("-")
         print("-----")
         print("效果结算")
         for i in range(len(self.playerlist)):
+
             self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].apply_status_effect_begin()
             self.check_pokemon_alive(self.playerlist[i], self.playerlist[i].pokemonlist_live[
             self.playerlist[i].current_pokemon])
+
+            if not self.check_player(self.playerlist[i]):
+                return False
+            print("-")
             if not self.check_player(self.playerlist[i]):
                 return False
             print("-")
@@ -208,7 +219,7 @@ class Play:
                 choose_p = int(choose_p) - 1
             else:
                 choose_p = self.playerlist[i].random(len(self.playerlist) - 1)
-                while choose_p == self.playerlist[i].index:
+                while choose_p == self.playerlist[i].index or self.playerlist[i].alive == False:
                     choose_p = self.playerlist[i].random(len(self.playerlist) - 1)
             target_player = self.playerlist[choose_p]
             print(f"{self.playerlist[i]}选择了{target_player}作为目标！")
@@ -220,7 +231,7 @@ class Play:
                 choose_p = int(choose_p) - 1
             else:
                 choose_p = self.playerlist[i].random(len(self.playerlist) - 1)
-                while choose_p == self.playerlist[i].index:
+                while choose_p == self.playerlist[i].index or self.playerlist[i].alive == False:
                     choose_p = self.playerlist[i].random(len(self.playerlist) - 1)
             target_player = self.playerlist[choose_p]
             print(f"{self.playerlist[i]}选择了{target_player}作为目标！")
@@ -242,7 +253,7 @@ class Play:
             )
 
         self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].apply_status_effect_defence()
-        self.playerlist[i].set_opr(True)
+
         # 刷新技能
         self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].fresh_skill()
         self.playerlist[choose_p].pokemonlist_live[self.playerlist[choose_p].current_pokemon].fresh_skill()
@@ -265,17 +276,18 @@ class Play:
                 else:
 
                     choose_p = self.round_use_skill(i)
+                    self.playerlist[i].set_opr(True)
                     self.check_pokemon_alive(self.playerlist[choose_p], self.playerlist[choose_p].pokemonlist_live[
                         self.playerlist[choose_p].current_pokemon])
                     self.check_pokemon_alive(self.playerlist[i], self.playerlist[i].pokemonlist_live[
                         self.playerlist[i].current_pokemon])
                     ###判断是否死亡,如果死亡，则返回 False
                     # 检测攻击对象是否死亡
-                    if not self.check_player(self.playerlist[choose_p]):
-                        i -= 1
-                        return False
-                    # 若攻击者没有死亡，检测操作者是否死亡
-                    elif not self.check_player(self.playerlist[i]):
+                    x =self.check_player(self.playerlist[i])
+                    if not x and choose_p > i:
+                        choose_p -= 1
+                    y =self.check_player(self.playerlist[choose_p])
+                    if (not  y  or not x):
                         return False
         return True
 

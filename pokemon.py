@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+
+
 import skills
 from typing import TYPE_CHECKING
 
@@ -30,10 +33,12 @@ class Pokemon:
         self.status_use_skills = []
         self.statuses_defence = []
         self.miss_rate = miss_rate
+        self.miss_rate0=miss_rate
         self.sleep_status: bool =False
         self.protected = False
         self.damage_history = []
         self.protected = False
+        self.Agility = False
 
     def change_index(self):
         self.index -= 1
@@ -81,6 +86,8 @@ class Pokemon:
 
     def receive_damage(self, damage:float,type1:str,ignoore_defense:bool=False):
         # 计算伤害并减去防御力，更新 HP
+        if not self.alive:
+            return 0
         if not isinstance(damage, int):
             damage = int(damage)
         # 计算属性克制
@@ -94,9 +101,11 @@ class Pokemon:
                 damage = 0
 
         self.hp -= damage
+
         if self.hp <= 0:
             self.alive = False
             self.hp=0
+
         return damage
 
 
@@ -131,7 +140,7 @@ class Pokemon:
             status.apply(self)
             status.decrease_duration()
             if status.duration <= -1:
-                print(f"{self} 的 {status.name} 效果结束.")
+
                 self.statuses_defence.remove(status)
 
     def type_effectiveness(self, opponent: str):
@@ -159,6 +168,8 @@ class Pokemon:
         self.miss_rate = miss_rate
     def fresh_skill(self):
         self.skills = self.initialize_skills()
+    def set_Agility(self,x:bool):
+        self.Agility = x
 
 
 # GrassPokemon 类
@@ -171,9 +182,9 @@ class GrassPokemon(Pokemon):
         opponent_type = opponent
 
         if opponent_type == "Water":
-            effectiveness = 0.8
+            effectiveness = 0.75
         elif opponent_type == "Fire":
-            effectiveness = 1.7
+            effectiveness = 1.5
         return effectiveness
 
     def begin(self):
@@ -204,9 +215,9 @@ class ElectricPokemon(Pokemon):
         opponent_type = opponenttype
 
         if opponent_type == "Water":
-            effectiveness = 0.7
+            effectiveness = 0.75
         elif opponent_type == "Grass":
-            effectiveness = 1.6
+            effectiveness = 1.5
         return effectiveness
 
     def miss_compute(self, opponent: Pokemon,ignore_miss_rate: int = 0, ):
@@ -246,7 +257,7 @@ class FirePokemon(Pokemon):
         if opponent_type == "Grass":
             effectiveness = 0.75
         elif opponent_type == "Water":
-            effectiveness = 1.6
+            effectiveness = 1.5
         return effectiveness
     def begin(self):
         self.sleep_status = False
@@ -275,7 +286,7 @@ class WaterPokemon(Pokemon):
         if opponent_type == "Fire":
             effectiveness = 0.6
         elif opponent_type == "Electric":
-            effectiveness = 1.6
+            effectiveness = 1.5
         effectiveness *= self.water_attribute()
         return effectiveness
 
@@ -289,7 +300,74 @@ class WaterPokemon(Pokemon):
         else:
             return 1.0
 
+class PhysicalPokemon(Pokemon):
+    type = "Physical"
 
+    def __init__(self, num: int, owner: int, operator: str, hp: int, attack: int, defense: int, miss_rate: int):
+        super().__init__(num, owner, operator, hp, attack, defense, miss_rate)
+        self.attack0 = attack
+        self.agility = False
+        self.miss_rate0 = miss_rate
+        self.re = True
+    def set_agility(self,x:bool):
+        self.agility = x
+
+    def type_effectiveness(self, opponenttype:str):
+        effectiveness = 1.0
+        opponent_type = opponenttype
+
+        if opponent_type == "Grass":
+            effectiveness = 0.7
+        elif opponent_type == "Fire":
+            effectiveness = 1.1
+        elif opponent_type == "Water":
+            effectiveness = 1.2
+        elif opponent_type == "Electric":
+            effectiveness = 1.2
+        return effectiveness
+    def begin(self):
+        self.sleep_status = False
+        self.skills = self.initialize_skills()
+        self.physical_attribute()
+        self.re = True
+
+
+    def physical_attribute(self):
+        # 物理属性特性:攻击力加成已损失生命值的15% ,防御力为已损失生命值的 10%
+        self.defense = (self.max_hp-self.hp) * 0.3
+        self.attack = self.attack0 + (self.max_hp-self.hp) * 0.14
+        print(f"{self} 触发物理属性特性,攻击力加成已损失生命值的 14%,防御力是已损失生命值的 30%,当前攻击力: {self.attack},防御力: {self.defense}")
+    def receive_damage(self, damage:float,type1:str,ignoore_defense:bool=False):
+        # 计算伤害并减去防御力，更新 HP
+        if not self.alive:
+            return 0
+        if not isinstance(damage, int):
+            damage = int(damage)
+        # 计算属性克制
+        effectiveness = self.type_effectiveness(type1)
+        damage *= effectiveness
+        # 计算伤害减免
+        if not ignoore_defense:
+            damage -= self.defense
+            if damage <= 0:
+                print(f"{self}的防御力抵消了所有伤害! 当前HP: {self.hp}/{self.max_hp}")
+                damage = 0
+
+        x=self.hp -1
+        self.hp -= damage
+
+        if self.hp <= 0:
+            if self.re:
+                self.re = False
+                self.hp = 1
+
+                print(f"{self} 触发不屈! 当前HP: {self.hp}/{self.max_hp}")
+                return x
+            else:
+             self.alive = False
+             self.hp=0
+
+        return damage
 
 
 
@@ -372,6 +450,50 @@ class Squirtle(WaterPokemon):
             effectiveness *= 0.35
             print(f"{self} 有护盾,受到伤害降低 35%")
         return effectiveness
+
+
+class Farfetchd(PhysicalPokemon):
+    name = "大葱鸭"
+    type = "Physical"
+    def __init__(self, num, owner,operator, hp=95, attack=30, defense=0, miss_rate=10) -> None:
+        super().__init__(num, owner,operator, hp, attack, defense, miss_rate)
+        self.defense0 = defense
+        self.re =True
+
+    def __str__(self) -> str:
+        return self.owner_id
+
+    def initialize_skills(self):
+        #air slash ,Agility
+        a = self.attack*1.35
+        b = int((self.max_hp-self.hp)*0.8 +10)
+        return [skills.Air_Slash(damage=a),skills.Agility(amount=b)]
+    def miss_compute(self, opponent: Pokemon,ignore_miss_rate: int = 0,):
+
+        if self.sleep_status == False and  random.randint(1, 100) <= self.miss_rate - ignore_miss_rate :
+            if self.agility:
+                print(f"{self}闪避了攻击! ")
+                self.Farfetchd_attribute(opponent)
+
+            print(f"{self}闪避了攻击!")
+            return True
+        else:
+            if self.agility:
+                self.defense += 5
+                print(f"{self}没有成功闪避攻击! 添加临时防御 5 点! 当前防御力: {self.defense}")
+                self.Farfetchd_attribute(self)
+
+            return False
+
+    def begin(self):
+        self.sleep_status = False
+        self.skills = self.initialize_skills()
+        self.physical_attribute()
+        self.defense = self.defense0
+
+    # 电属性特性：闪避成功，发动技能
+    def Farfetchd_attribute(self, opponent: Pokemon):
+        self.use_skill(skills.Agility_Execute(opponent.attack*0.2),opponent)
 
 
 

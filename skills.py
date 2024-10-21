@@ -58,14 +58,13 @@ class ParasiticSeeds(Skill):
 
 
     def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
-        self.amount = opponent.max_hp / 8
+
 
         if not opponent.miss_compute(user):
             # 给使用者添加治疗效果
-            opponent.add_status_effect(effects.PoisonEffect("寄生种子",self.amount,3),1)
-            print(f"{opponent} 被 {user} 寄生,产生中毒效果!")
-            # 给对手添加中毒效果
-            user.add_status_effect(effects.HealEffect("寄生种子",self.amount,3),1)
+            opponent.add_status_effect(effects.parasitism("寄生种子",user,3),1)
+            print(f"{opponent} 被 {user} 寄生了!")
+
         return -1
 
 
@@ -217,5 +216,67 @@ class Shield(Skill) :
         self.defence = defence
     def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
         user.set_proptected(True)
-        user.add_status_effect(effects.Shield(self.name, self.defence, 2), 3)
+        user.add_status_effect(effects.Shield(self.name, self.defence, 1), 3)
         return -1
+
+class Air_Slash(Skill) :
+    name = "空气斩"
+    type = "Physical"
+    def __init__(self,damage:float)->None:
+        super().__init__()
+        self.damage = damage
+
+    def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
+        True_damage = 0
+        if not opponent.miss_compute(user, ignore_miss_rate=-5):
+            True_damage = opponent.receive_damage(self.damage, self.type, False)
+            print(
+                f"{opponent} 受到了 {True_damage} 点伤害！ 剩余生命值: {opponent.hp}/{opponent.max_hp}"
+            )
+        else:
+            True_damage = opponent.receive_damage(self.damage*0.8, self.type, False)
+            print(
+                f"{opponent} 因剑气受到了 {True_damage} 点伤害！ 剩余生命值: {opponent.hp}/{opponent.max_hp}"
+            )
+        user.receive_damage(self.damage * 0.15, self.type, True)
+        print(
+            f"{user} 因空气斩力量过大受到了 {self.damage * 0.15} 点伤害！ 剩余生命值: {user.hp}/{user.max_hp}"
+        )
+        return True_damage
+
+
+class Agility(Skill) :
+    name = "高速星星"
+    type = "Physical"
+    def __init__(self,amount:int)->None:
+        super().__init__()
+        self.amount = amount
+
+    def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
+        user.set_Agility(True)
+        for i in user.statuses_defence:
+            if i.name == "高速星星":
+                user.statuses_defence.remove(i)
+        user.add_status_effect(effects.Agility(self.name, self.amount, 2), 3)
+        print(f"{user} 的闪避率变为了 {self.amount} !")
+        user.set_miss_rate(self.amount)
+
+        return -1
+
+class Agility_Execute(Skill) :
+    name = "高速星星"
+    type = "Physical"
+    def __init__(self,amount:float)->None:
+        super().__init__()
+        self.amount = amount
+
+    def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
+
+        if opponent == user:
+            True_damage = opponent.receive_damage(self.amount*0.8, self.type, True)
+            print(f"处于高速星星状态,{user}对{opponent}造成{True_damage}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
+        else:
+            True_damage = opponent.receive_damage(self.amount, self.type, True)
+            print(f"处于高速星星状态,{user}对{opponent}造成{True_damage}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
+
+        return True_damage

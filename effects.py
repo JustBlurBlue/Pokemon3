@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pokemon import Pokemon
+    from pokemon import Pokemon, PhysicalPokemon
 
 
 class Effect:
@@ -26,7 +26,7 @@ class Effect:
 
 class PoisonEffect(Effect):
     name = "中毒"
-    type = "None"#使其没有属性,保障伤害
+    type = "毒"#使其没有属性,保障伤害
 
     def __init__(self, skill_name:str, damage: float , duration: int = 3) -> None:
         super().__init__(duration)
@@ -37,6 +37,23 @@ class PoisonEffect(Effect):
     def apply(self, pokemon: "Pokemon") -> None:
         Ture_damage =pokemon.receive_damage(self.damage,self.type,True)
         print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点中毒伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
+
+
+class parasitism(Effect):
+    name = "寄生"
+    type = None
+    def __init__(self, skill_name:str,para: "Pokemon", duration: int = 3) -> None:
+        super().__init__(duration)
+
+        self.skill_name = skill_name
+        self.para = para
+    def apply(self, pokemon: "Pokemon") -> None:
+        damage = pokemon.hp/10.0
+        Ture_damage =pokemon.receive_damage(damage,self.type,True)
+        print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点寄生伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
+        self.para.heal_self(Ture_damage)
+        print(f"{self.para} 从 {pokemon} 吸取了 {Ture_damage} 点HP! 当前HP: {self.para.hp}/{self.para.max_hp}")
+
 
 
 class HealEffect(Effect):
@@ -107,3 +124,21 @@ class Shield(Effect):
         #如果持续时间小于1，则护盾状态结束
         if self.duration < 1:
             pokemon.set_proptected(False)
+            print(f"{pokemon} {self.name} 效果结束!")
+
+class Agility(Effect):
+    name = "高速星星"
+    type = "Physical"
+    def __init__(self,skill_name:str, amount: int, duration: int ) -> None:
+        super().__init__(duration)
+        self.amount = amount
+        self.skill_name = skill_name
+    def apply(self, pokemon: "PhysicalPokemon") -> None:
+        # 每次应用时都把高速状态设置成True
+        pokemon.set_agility(True)
+
+        #如果持续时间小于1，则高速状态结束
+        if self.duration < 1:
+            pokemon.set_agility(False)
+            pokemon.set_miss_rate(pokemon.miss_rate0)
+            print(f"{pokemon} {self.name} 效果结束!,闪避率恢复为 {pokemon.miss_rate0} !")
