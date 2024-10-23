@@ -207,7 +207,8 @@ class Play:
     #玩家操作
     def round_use_skill(self,i)->int:
         self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].fresh_skill()
-        print(f"{self.playerlist[i]}:你当前的宝可梦是{self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}")
+
+        self.print_players(self.playerlist[i].index)
         if self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].preparing:
             print(f"{self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}: 蓄力完成")
             #请确认目标
@@ -252,7 +253,7 @@ class Play:
                 self.playerlist[choose_p].pokemonlist_live[self.playerlist[choose_p].current_pokemon]
             )
 
-        self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].apply_status_effect_defence()
+
 
         # 刷新技能
         self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].fresh_skill()
@@ -265,30 +266,41 @@ class Play:
         for i in range(x,y,shunxu):
             #是否操作过了
             if  not self.playerlist[i].opr :
+                # 设置玩家为操作过
+                self.playerlist[i].set_opr(True)
+                choose_p = -1
                 # 应用于技能使用前的效果
                 self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].apply_status_effect_use_skills()
                 print(
-                    f"轮到{self.playerlist[i]}进行操作，当前的宝可梦是 {self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}")
-                self.print_players(self.playerlist[i].index)
+                    f"轮到{self.playerlist[i]}进行操作，你当前的宝可梦是 {self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}")
+
                 # 判断是否被麻痹
                 if self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].sleep_status:
                     print(f"{self.playerlist[i]}被麻痹了，无法行动")
-                else:
 
+                else:
                     choose_p = self.round_use_skill(i)
                     self.playerlist[i].set_opr(True)
+
+                    ###判断是否死亡,如果死亡，则返回 False
+                    # 检测攻击对象是否死亡
+                    # 应用于技能使用前的效果
+                if self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].alive:
+                    self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].apply_status_effect_defence()
+                if choose_p != -1:
+
                     self.check_pokemon_alive(self.playerlist[choose_p], self.playerlist[choose_p].pokemonlist_live[
                         self.playerlist[choose_p].current_pokemon])
                     self.check_pokemon_alive(self.playerlist[i], self.playerlist[i].pokemonlist_live[
                         self.playerlist[i].current_pokemon])
-                    ###判断是否死亡,如果死亡，则返回 False
-                    # 检测攻击对象是否死亡
-                    x =self.check_player(self.playerlist[i])
+                    x = self.check_player(self.playerlist[i])
                     if not x and choose_p > i:
                         choose_p -= 1
-                    y =self.check_player(self.playerlist[choose_p])
-                    if (not  y  or not x):
+                    y = self.check_player(self.playerlist[choose_p])
+                    if (not y or not x):
                         return False
+
+
         return True
 
 

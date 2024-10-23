@@ -123,7 +123,6 @@ class Pokemon:
         # 应用所有当前的状态效果，并移除持续时间结束的效果
         for status in self.statuses_begin[:]:  # 使用切片防止列表在遍历时被修改
             status.apply(self)
-            status.decrease_duration()
             if status.duration <= 0:
                 print(f"{self} 的 {status.name} 效果结束.")
                 self.statuses_begin.remove(status)
@@ -131,16 +130,14 @@ class Pokemon:
         # 应用所有当前的状态效果，并移除持续时间结束的效果
         for status in self.status_use_skills[:]:  # 使用切片防止列表在遍历时被修改
             status.apply(self)
-            status.decrease_duration()
             if status.duration <= -1:
-                print(f"{self} 的 {status.name} 效果结束.")
                 self.status_use_skills.remove(status)
     def apply_status_effect_defence(self):
         for status in self.statuses_defence[:]:
             status.apply(self)
-            status.decrease_duration()
-            if status.duration <= -1:
 
+            if status.duration <= 0:
+                print(f"{self} 的 {status.name} 效果结束.")
                 self.statuses_defence.remove(status)
 
     def type_effectiveness(self, opponent: str):

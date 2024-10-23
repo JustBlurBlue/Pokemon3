@@ -21,7 +21,7 @@ class Effect:
         if self.duration <= 0:
             pass
         else:
-            print(f"{self.name} 效果持续时间减少了. 剩余: {self.duration}")
+            print(f"{self.name} 效果持续时间减少了 剩余: {self.duration}")
 
 
 class PoisonEffect(Effect):
@@ -35,8 +35,10 @@ class PoisonEffect(Effect):
 
 
     def apply(self, pokemon: "Pokemon") -> None:
+
         Ture_damage =pokemon.receive_damage(self.damage,self.type,True)
         print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点中毒伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
+        self.decrease_duration()
 
 
 class parasitism(Effect):
@@ -54,6 +56,7 @@ class parasitism(Effect):
         if self.para.alive:
             self.para.heal_self(Ture_damage)
             print(f"{self.para} 从 {pokemon} 吸取了 {Ture_damage} 点HP! 当前HP: {self.para.hp}/{self.para.max_hp}")
+        self.decrease_duration()
 
 
 
@@ -67,6 +70,7 @@ class HealEffect(Effect):
     def apply(self, pokemon: "Pokemon") -> None:
         pokemon.heal_self(self.amount)
         print(f"{pokemon} 用 {self.skill_name} 治疗了自己 {self.amount} 点HP!当前HP: {pokemon.hp}/{pokemon.max_hp}")
+        self.decrease_duration()
 
 
 class SleepEffect(Effect):
@@ -80,9 +84,12 @@ class SleepEffect(Effect):
         # 每次应用时都把麻痹状态设置成True
         pokemon.set_sleep(True)
         pokemon.set_preparing(None,False,None)
+        self.decrease_duration()
         #如果持续时间小于1，则麻痹状态结束
-        if self.duration < 1:
+        if self.duration <= -1:
             pokemon.set_sleep(False)
+            print(f"{pokemon} 的 {self.name} 效果结束.")
+
 
 class FireEffect(Effect):
     name = "灼烧"
@@ -95,6 +102,7 @@ class FireEffect(Effect):
     def apply(self, pokemon: "Pokemon") -> None:
         Ture_damage = pokemon.receive_damage(self.amount+pokemon.hp/10.0, self.type, True)
         print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点灼烧伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
+        self.decrease_duration()
 '''
 class PreparingEffect(Effect):
     name = "蓄力"
@@ -122,10 +130,12 @@ class Shield(Effect):
     def apply(self, pokemon: "Pokemon") -> None:
         # 每次应用时都把护盾状态设置成True
         pokemon.set_proptected(True)
-        #如果持续时间小于1，则护盾状态结束
-        if self.duration < 1:
+        #如果持续时间小于0，则护盾状态结束
+        self.decrease_duration()
+        if self.duration <= 0:
             pokemon.set_proptected(False)
-            print(f"{pokemon} {self.name} 效果结束!")
+
+
 
 class Agility(Effect):
     name = "高速星星"
@@ -137,9 +147,9 @@ class Agility(Effect):
     def apply(self, pokemon: "PhysicalPokemon") -> None:
         # 每次应用时都把高速状态设置成True
         pokemon.set_agility(True)
-
+        self.decrease_duration()
         #如果持续时间小于1，则高速状态结束
-        if self.duration < 1:
+        if self.duration <= 0:
             pokemon.set_agility(False)
             pokemon.set_miss_rate(pokemon.miss_rate0)
-            print(f"{pokemon} {self.name} 效果结束!,闪避率恢复为 {pokemon.miss_rate0} !")
+            print(f"{pokemon} 闪避率恢复为 {pokemon.miss_rate0} !")

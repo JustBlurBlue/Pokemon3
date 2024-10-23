@@ -71,7 +71,7 @@ class ParasiticSeeds(Skill):
 class ThunderBolt(Skill):
     name = "十万伏特"
     type = "Electric"
-    def __init__(self,damage:float,activation_chance: int = 15)->None:
+    def __init__(self,damage:float,activation_chance: int = 90)->None:
         super().__init__()
         self.damage = damage
         self.activation_chance = activation_chance
@@ -236,7 +236,7 @@ class Air_Slash(Skill) :
         else:
             True_damage = opponent.receive_damage(self.damage*0.8, self.type, False)
             print(
-                f"{opponent} 因剑气受到了 {True_damage} 点伤害！ 剩余生命值: {opponent.hp}/{opponent.max_hp}"
+                f"{opponent} 虽然闪避但因剑气仍受到了 {True_damage} 点伤害！ 剩余生命值: {opponent.hp}/{opponent.max_hp}"
             )
         user.receive_damage(self.damage * 0.15, self.type, True)
         print(
@@ -273,8 +273,8 @@ class Agility_Execute(Skill) :
     def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
 
         if opponent == user:
-            True_damage = opponent.receive_damage(self.amount, self.type)
-            print(f"处于高速星星状态,{user}对{opponent}造成{True_damage}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
+            True_damage = opponent.receive_damage(self.amount, self.type,True)
+            print(f"处于高速星星状态,{user}对{opponent}造成{True_damage*0.8}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
         else:
             True_damage = opponent.receive_damage(self.amount, self.type, True)
             print(f"处于高速星星状态,{user}对{opponent}造成{True_damage}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
