@@ -152,7 +152,7 @@ class Ember(Skill):
 class Flame_Charge(Skill) :
     name = "蓄能爆炎"
     type = "Fire"
-    def __init__(self,damage:float,activation_chance: int = 90)->None:
+    def __init__(self,damage:float,activation_chance: int = 15)->None:
         super().__init__()
         self.damage = damage
         self.opponent = None
