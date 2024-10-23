@@ -206,7 +206,7 @@ class Play:
         return True
     #玩家操作
     def round_use_skill(self,i)->int:
-
+        self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].fresh_skill()
         print(f"{self.playerlist[i]}:你当前的宝可梦是{self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}")
         if self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon].preparing:
             print(f"{self.playerlist[i].pokemonlist_live[self.playerlist[i].current_pokemon]}: 蓄力完成")

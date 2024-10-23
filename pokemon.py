@@ -194,12 +194,12 @@ class GrassPokemon(Pokemon):
 
     def grass_attribute(self):
         # 草属性特性：每回合恢复 失去生命值的 10%
-        amount = (self.max_hp-self.hp) * 0.14
+        amount = (self.max_hp-self.hp) * 0.18
         self.hp += amount
         if self.hp > self.max_hp:
             self.hp = self.max_hp
         print(
-            f"{self} 在回合开始治愈了已损失生命值14% {amount} 点HP! 当前HP: {self.hp}/{self.max_hp}"
+            f"{self} 在回合开始治愈了已损失生命值18% {amount} 点HP! 当前HP: {self.hp}/{self.max_hp}"
         )
 # ElectricPokemon 类
 class ElectricPokemon(Pokemon):
@@ -361,7 +361,7 @@ class PhysicalPokemon(Pokemon):
                 self.re = False
                 self.hp = 1
 
-                print(f"{self} 触发不屈! 当前HP: {self.hp}/{self.max_hp}")
+                print(f"{self} 触发一线生机,锁死 1HP! ")
                 return x
             else:
              self.alive = False
@@ -395,7 +395,7 @@ class Pikachu(ElectricPokemon):
         return self.owner_id
     def initialize_skills(self):
         # 初始化技能，具体技能是 Thunderbolt 和 Quick Attack
-        a = self.attack*1.4
+        a = self.attack*1.3
         b = self.attack*1.2
         return [skills.ThunderBolt(damage=a), skills.Quick_Attack(damage=b)]
 
@@ -466,7 +466,7 @@ class Farfetchd(PhysicalPokemon):
     def initialize_skills(self):
         #air slash ,Agility
         a = self.attack*1.35
-        b = int((self.max_hp-self.hp)*0.8 +10)
+        b = int((self.max_hp-self.hp)*0.45 +20)
         return [skills.Air_Slash(damage=a),skills.Agility(amount=b)]
     def miss_compute(self, opponent: Pokemon,ignore_miss_rate: int = 0,):
 
@@ -474,13 +474,11 @@ class Farfetchd(PhysicalPokemon):
             if self.agility:
                 print(f"{self}闪避了攻击! ")
                 self.Farfetchd_attribute(opponent)
-
-            print(f"{self}闪避了攻击!")
             return True
         else:
             if self.agility:
-                self.defense += 5
-                print(f"{self}没有成功闪避攻击! 添加临时防御 5 点! 当前防御力: {self.defense}")
+                self.defense += 3
+                print(f"{self}没有成功闪避攻击! 添加临时防御 3 点! 当前防御力: {self.defense}")
                 self.Farfetchd_attribute(self)
 
             return False
@@ -488,12 +486,13 @@ class Farfetchd(PhysicalPokemon):
     def begin(self):
         self.sleep_status = False
         self.skills = self.initialize_skills()
-        self.physical_attribute()
         self.defense = self.defense0
+        self.physical_attribute()
+
 
     # 电属性特性：闪避成功，发动技能
     def Farfetchd_attribute(self, opponent: Pokemon):
-        self.use_skill(skills.Agility_Execute(opponent.attack*0.2),opponent)
+        self.use_skill(skills.Agility_Execute(opponent.attack*0.3),opponent)
 
 
 

@@ -143,7 +143,7 @@ class Ember(Skill):
             )
             if random.randint(1, 100) <= self.activation_chance:
 
-                opponent.add_status_effect(effects.FireEffect(self.name, 13, 2), 1)
+                opponent.add_status_effect(effects.FireEffect(self.name, 15, 2), 1)
                 print(f"{opponent.name} 被 {self.name} 施加了灼烧！")
             else:
                 print(f"{self.name} 没有使 {opponent} 灼烧！")
@@ -152,7 +152,7 @@ class Ember(Skill):
 class Flame_Charge(Skill) :
     name = "蓄能爆炎"
     type = "Fire"
-    def __init__(self,damage:float,activation_chance: int = 80)->None:
+    def __init__(self,damage:float,activation_chance: int = 90)->None:
         super().__init__()
         self.damage = damage
         self.opponent = None
@@ -170,7 +170,7 @@ class Flame_Charge(Skill) :
 class Flame_Charge_Execute(Skill) :
     name = "蓄能爆炎"
     type = "Fire"
-    def __init__(self,damage:float,activation_chance: int = 80)->None:
+    def __init__(self,damage:float,activation_chance: int = 90)->None:
         super().__init__()
         self.damage = damage
         self.activation_chance = activation_chance
@@ -182,7 +182,7 @@ class Flame_Charge_Execute(Skill) :
                 f"{opponent} 受到了 {True_damage} 点伤害！ 剩余生命值: {opponent.hp}/{opponent.max_hp}"
             )
             if random.randint(1, 100) <= self.activation_chance:
-                opponent.add_status_effect(effects.FireEffect(self.name, 15, 2), 1)
+                opponent.add_status_effect(effects.FireEffect(self.name, 25, 2), 1)
                 print(f"{opponent.name} 被 {self.name} 施加了灼烧！")
             else:
                 print(f"{self.name} 没有使 {opponent} 灼烧！")
@@ -216,7 +216,7 @@ class Shield(Skill) :
         self.defence = defence
     def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
         user.set_proptected(True)
-        user.add_status_effect(effects.Shield(self.name, self.defence, 1), 3)
+        user.add_status_effect(effects.Shield(self.name, self.defence, 2), 3)
         return -1
 
 class Air_Slash(Skill) :
@@ -273,7 +273,7 @@ class Agility_Execute(Skill) :
     def execute(self, user: "Pokemon", opponent: "Pokemon") -> float:
 
         if opponent == user:
-            True_damage = opponent.receive_damage(self.amount*0.8, self.type, True)
+            True_damage = opponent.receive_damage(self.amount, self.type)
             print(f"处于高速星星状态,{user}对{opponent}造成{True_damage}点伤害! {opponent} 剩余HP值: {opponent.hp}/{opponent.max_hp}")
         else:
             True_damage = opponent.receive_damage(self.amount, self.type, True)

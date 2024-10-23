@@ -48,11 +48,12 @@ class parasitism(Effect):
         self.skill_name = skill_name
         self.para = para
     def apply(self, pokemon: "Pokemon") -> None:
-        damage = pokemon.hp/10.0
+        damage = pokemon.hp/8
         Ture_damage =pokemon.receive_damage(damage,self.type,True)
         print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点寄生伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
-        self.para.heal_self(Ture_damage)
-        print(f"{self.para} 从 {pokemon} 吸取了 {Ture_damage} 点HP! 当前HP: {self.para.hp}/{self.para.max_hp}")
+        if self.para.alive:
+            self.para.heal_self(Ture_damage)
+            print(f"{self.para} 从 {pokemon} 吸取了 {Ture_damage} 点HP! 当前HP: {self.para.hp}/{self.para.max_hp}")
 
 
 
@@ -92,7 +93,7 @@ class FireEffect(Effect):
         self.skill_name = skill_name
 
     def apply(self, pokemon: "Pokemon") -> None:
-        Ture_damage = pokemon.receive_damage(self.amount, self.type, True)
+        Ture_damage = pokemon.receive_damage(self.amount+pokemon.hp/10.0, self.type, True)
         print(f"{pokemon} 因 {self.skill_name} 受到了 {Ture_damage} 点灼烧伤害!, 当前HP: {pokemon.hp}/{pokemon.max_hp}")
 '''
 class PreparingEffect(Effect):
