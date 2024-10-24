@@ -71,7 +71,7 @@ class ParasiticSeeds(Skill):
 class ThunderBolt(Skill):
     name = "十万伏特"
     type = "Electric"
-    def __init__(self,damage:float,activation_chance: int = 90)->None:
+    def __init__(self,damage:float,activation_chance: int = 15)->None:
         super().__init__()
         self.damage = damage
         self.activation_chance = activation_chance
